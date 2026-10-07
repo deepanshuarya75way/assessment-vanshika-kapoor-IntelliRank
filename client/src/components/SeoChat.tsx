@@ -3,6 +3,7 @@ import type { ChatMessage } from "../types/chat";
 import { useApp } from "../context/AppContext";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import type { ExecSyncOptionsWithStringEncoding } from "node:child_process";
 
 interface Props {
   analysisId?: string;
@@ -17,6 +18,15 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const [loading, setLoading] = useState(false);
     const [input, setInput] = useState("");
+const [analysisSummary,setAnalysisSummary]=useState<{
+  score:number;
+  recomndations:{
+    severity:ExecSyncOptionsWithStringEncoding,
+    issue:string,
+    recommendation:string
+  }[];
+}|null>(null);
+
 
   const suggestedQuestions = [
   "Why is my SEO score low?",
@@ -77,7 +87,14 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
         websiteUrl,
         message: input,
       });
+       
 
+      if(res.data.score!== undefined){
+        setAnalysisSummary({
+          score:res.data.score,
+          recommendations:res.data.recommendations || [],
+        })
+      }
       if(res.data.success){
       setMessages((prev) => [
         ...prev,
@@ -147,9 +164,34 @@ onClick={() => {
     </div>
   </div>
 )}
+
+
       {/* Chat Messages */}
       <div className="h-[420px] overflow-y-auto border border-border rounded-xl bg-background p-4 space-y-4">
+       
+       {analysisSummary && (
+        <div>
+           <div>
+             <div>
+              <p>
+                  Website            <p>{websiteUrl}</p>
+              </p>
+             </div>
 
+             <p>{analysisSummary.score}</p>
+           </div>
+
+           {analysisSummary.recomndations?.length>0 && (
+            <div >  
+              <p>Recommendations</p> 
+              {analysisSummary.recomndations.slice(0,3).map((item,i)=>(
+                <p>
+                  {item.recommendation}
+                </p>
+              ))} </div>       )}
+        </div>
+       )}
+ 
         {messages.map((msg, index) => (
           <div
             key={index}

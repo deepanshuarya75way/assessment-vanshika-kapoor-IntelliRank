@@ -4,7 +4,7 @@ import { analyzeSeoData } from '../services/geminiService.js'; // 1. Fixed: Adde
 
 
 //reusable seo analysis workflow
-export const runSeoAnalysis=async(userId,url)=>{
+export const runSeoAnalysis=async(userId,urlz)=>{
    try{
      let validUrl;
     try {

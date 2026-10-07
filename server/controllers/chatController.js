@@ -20,7 +20,9 @@ export const chatWithSeoAssistant = async (req, res) => {
       _id: analysisId,
       userId: req.userId,
     });
-    }else if(websiteUrl){
+    }
+    
+     if(!analysis && websiteUrl){
 
       //check if user analysis id already exists
       analysis=await Analysis.findOne({
@@ -30,7 +32,7 @@ export const chatWithSeoAssistant = async (req, res) => {
     }).sort({createdAt:-1});
 
     //if no analysis
-    if(!analysis){
+    if(!analysis && websiteUrl){
       const result=await runSeoAnalysis(
         req.userId,
         websiteUrl
@@ -54,15 +56,14 @@ export const chatWithSeoAssistant = async (req, res) => {
       });
     }
 
-    //use url stored in the analysis as the trusted url
-    const url=analysis.url || websiteUrl;
-
-    if(!url){
-      return res.status(400).json({
+    if(analysis.userId.toString()!== req.userId.toString()){
+      return res.status(403).json({
         success:false,
-        message:"website url not avalable"
+        message:"unauthorised analysis access"
       })
     }
+
+    //use url stored in the analysis as the trusted url
     
     // Find existing chat
     let chat = await Chat.findOne({
@@ -78,8 +79,11 @@ export const chatWithSeoAssistant = async (req, res) => {
       });
     } 
 
-    //keep previos messages separately
-      const previousMessages=[...chat.messages];
+    // Save user message
+    chat.messages.push({
+      role: "user",
+      content: message,
+    });
 
     
 
@@ -88,18 +92,17 @@ export const chatWithSeoAssistant = async (req, res) => {
       analysis,
       url,
       message,
-      previousMessages
+      chat.messages
     );
 
      if (!result.success) {
-      return res.status(500).json(result);
+      return res.status(500).json({
+        success:false,
+        message:"Ai Response failed",
+        error:result.error
+      });
     }
 
-    // Save user message
-    chat.messages.push({
-      role: "user",
-      content: message,
-    });
 
    
 
@@ -113,7 +116,19 @@ export const chatWithSeoAssistant = async (req, res) => {
 
     res.json({
       success: true,
-      answer: result.answer,
+      analysisId:analysis._id,
+      websiteUrl:analysis.url,
+
+
+      score:analysis.overallScore,
+      recomendations:analysis.issues.map(
+        (issue)=>({
+          severity:issue.severity,
+          issue:issue.message,
+          recommendation:issue.recommendation,
+        })
+      ),
+      answer:result.answer
     });
 
   } catch (err) {
