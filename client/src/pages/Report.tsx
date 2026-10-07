@@ -499,7 +499,8 @@ export default function Report() {
                     )}
 
                     {analysis?._id && (
-                    <SeoChat analysisId={analysis._id} />
+                    <SeoChat analysisId={analysis._id} 
+                    websiteUrl={analysis.url}/>
                     )}           
              </div>
             </div>

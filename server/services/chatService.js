@@ -4,7 +4,7 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
 });
 
-export const askSeoAssistant = async (analysis, message,previousMessages = [] ) => {
+export const askSeoAssistant = async (analysis,websiteUrl,message,previousMessages = [] ) => {
         try {
 
 const history = previousMessages
@@ -16,7 +16,13 @@ const history = previousMessages
 const prompt = `
 You are IntelliRank AI, a professional SEO consultant.
 
-Website Analysis
+The authenticated user's website is:
+
+Website Url:${websiteUrl}
+
+You must use the provided Seo analysis as a primary source of truth.
+
+Website SEO Analysis
 
 Overall Score: ${analysis.overallScore}
 
@@ -47,7 +53,7 @@ Recommendation: ${i.recommendation}
   .join("\n")}
 
 Previous Conversation:
-${history}
+${history || "No previous conversations"}
 
 Current User Question:
 ${message}
@@ -55,7 +61,11 @@ ${message}
 Instructions:
 
 - Answer only SEO related questions.
-- Use previous conversation if relevant.
+-Use the provided webiste url when referring to the user's website
+-Use the existing seo analysis and scores when giving recomendations
+-Do not invent SEO scores,issues,website information.
+-If the answer is already available in the analysis explain it clearly
+- Use previous conversation when relevant.
 - Keep answers concise.
 - Use markdown.
 - Use bullet points whenever possible.

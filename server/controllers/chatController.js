@@ -37,6 +37,21 @@ export const chatWithSeoAssistant = async (req, res) => {
         userId: req.userId,
         messages: [],
       });
+    } 
+      const previousMessages=[...chat.messages];
+
+    
+
+    // Ask Gemini
+    const result = await askSeoAssistant(
+      analysis,
+      url,
+      message,
+      previousMessages
+    );
+
+     if (!result.success) {
+      return res.status(500).json(result);
     }
 
     // Save user message
@@ -45,16 +60,7 @@ export const chatWithSeoAssistant = async (req, res) => {
       content: message,
     });
 
-    // Ask Gemini
-    const result = await askSeoAssistant(
-      analysis,
-      message,
-      chat.messages
-    );
-
-    if (!result.success) {
-      return res.status(500).json(result);
-    }
+   
 
     // Save AI reply
     chat.messages.push({
@@ -70,7 +76,7 @@ export const chatWithSeoAssistant = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("chat error:",err);
 
     res.status(500).json({
       success: false,
@@ -102,7 +108,7 @@ export const getChatHistory = async (req, res) => {
       messages: chat.messages,
     });
   } catch (err) {
-    console.error(err);
+    console.error("chat history:",err);
 
     res.status(500).json({
       success: false,

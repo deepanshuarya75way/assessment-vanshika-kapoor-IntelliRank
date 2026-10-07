@@ -6,22 +6,24 @@ import remarkGfm from "remark-gfm";
 
 interface Props {
   analysisId: string;
+  websiteUrl:string
 }
 
-const SeoChat = ({ analysisId }: Props) => {
+const SeoChat = ({ analysisId,websiteUrl }: Props) => {
   const { api } = useApp();
 
 const [messages, setMessages] = useState<ChatMessage[]>([]);
 
 
   const [loading, setLoading] = useState(false);
+    const [input, setInput] = useState("");
+
   const suggestedQuestions = [
   "Why is my SEO score low?",
   "Explain all critical issues.",
   "Give me a 7-day SEO improvement plan.",
   "Which issue should I fix first?",
 ];
-  const [input, setInput] = useState("");
 
   useEffect(() => {
   const loadChat = async () => {
@@ -70,6 +72,7 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
     try {
       const res = await api.post("/api/chat", {
         analysisId,
+        websiteUrl,
         message: input,
       });
 
