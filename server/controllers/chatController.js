@@ -63,7 +63,6 @@ export const chatWithSeoAssistant = async (req, res) => {
       })
     }
 
-    //use url stored in the analysis as the trusted url
     
     // Find existing chat
     let chat = await Chat.findOne({
@@ -90,7 +89,6 @@ export const chatWithSeoAssistant = async (req, res) => {
     // Ask Gemini
     const result = await askSeoAssistant(
       analysis,
-      url,
       message,
       chat.messages
     );

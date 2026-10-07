@@ -3,7 +3,6 @@ import type { ChatMessage } from "../types/chat";
 import { useApp } from "../context/AppContext";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ExecSyncOptionsWithStringEncoding } from "node:child_process";
 
 interface Props {
   analysisId?: string;
@@ -20,8 +19,7 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
 const [analysisSummary,setAnalysisSummary]=useState<{
   score:number;
-  recomndations:{
-    severity:ExecSyncOptionsWithStringEncoding,
+  recommendations:{
     issue:string,
     recommendation:string
   }[];
@@ -68,17 +66,18 @@ const [analysisSummary,setAnalysisSummary]=useState<{
   loadChat();
 }, [analysisId]);
 
-  const sendMessage = async (messageText?:string) => {
-    const text=messageText??input;
-
-    if (!input.trim()) return;
+  const sendMessage = async (text?:string) => {
+    const messageText=text??input;
+    if (!messageText.trim()) return;
 
     const userMessage: ChatMessage = {
       role: "user",
-      message: input,
+      message: messageText,
     };
 
     setMessages((prev) => [...prev, userMessage]);
+
+    setInput("")
     setLoading(true);
 
     try {
@@ -181,10 +180,10 @@ onClick={() => {
              <p>{analysisSummary.score}</p>
            </div>
 
-           {analysisSummary.recomndations?.length>0 && (
+           {analysisSummary.recommendations?.length>0 && (
             <div >  
               <p>Recommendations</p> 
-              {analysisSummary.recomndations.slice(0,3).map((item,i)=>(
+              {analysisSummary.recommendations.slice(0,3).map((item,i)=>(
                 <p>
                   {item.recommendation}
                 </p>
