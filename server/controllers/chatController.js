@@ -1,6 +1,7 @@
 import Analysis from "../models/Analysis.js";
 import Chat from "../models/chatModel.js";
 import { askSeoAssistant } from "../services/chatService.js";
+import { runSeoAnalysis } from "./analysisController.js";
 
 export const chatWithSeoAssistant = async (req, res) => {
   try {
@@ -12,11 +13,38 @@ export const chatWithSeoAssistant = async (req, res) => {
         message: "AnalysisId and message required",
       });
     }
-
-    const analysis = await Analysis.findOne({
+    let analysis;
+    if(analysisId){
+      analysis = await Analysis.findOne({
       _id: analysisId,
       userId: req.userId,
     });
+    }else if(websiteUrl){
+
+      //check if user analysis id already exists
+      analysis=await Analysis.findOne({
+      userId: req.userId,
+      url:websiteUrl,
+      status:"completed"
+    }).sort({createdAt:-1});
+
+    //if no analysis
+    if(!analysis){
+      const result=await runSeoAnalysis(
+        req.userId,
+        websiteUrl
+      );
+
+      if(!result.success){
+        return res.status(500).json({
+          success:false,
+          message:result.error
+        }),
+      }
+      analysis=result.analysis;
+    }
+    }
+     
 
     if (!analysis) {
       return res.status(404).json({

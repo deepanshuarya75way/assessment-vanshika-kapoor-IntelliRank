@@ -5,8 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface Props {
-  analysisId: string;
-  websiteUrl:string
+  analysisId?: string;
+  websiteUrl?:string
 }
 
 const SeoChat = ({ analysisId,websiteUrl }: Props) => {
