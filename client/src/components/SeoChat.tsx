@@ -58,7 +58,9 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
   loadChat();
 }, [analysisId]);
 
-  const sendMessage = async () => {
+  const sendMessage = async (messageText?:string) => {
+    const text=messageText??input;
+
     if (!input.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -76,6 +78,7 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
         message: input,
       });
 
+      if(res.data.success){
       setMessages((prev) => [
         ...prev,
         {
@@ -83,6 +86,15 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
           message: res.data.answer,
         },
       ]);
+    }else{
+      setMessages((prev)=>[
+        ...prev,
+        {
+          role:"assistant",
+          message:"failed to get ai response",
+        }
+      ])
+    }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -92,9 +104,9 @@ const [messages, setMessages] = useState<ChatMessage[]>([]);
         },
       ]);
     }
-
-    setInput("");
+    finally{
     setLoading(false);
+    }
   };
 
   return (
@@ -189,8 +201,8 @@ onClick={() => {
         />
 
         <button
-          onClick={sendMessage}
-          disabled={loading}
+          onClick={()=>sendMessage()}
+          disabled={loading || !input.trim()}
           className="bg-zinc-800 text-white px-6 rounded-xl hover:opacity-90 transition disabled:opacity-50"
         >
           Send

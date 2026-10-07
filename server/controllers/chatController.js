@@ -13,7 +13,8 @@ export const chatWithSeoAssistant = async (req, res) => {
         message: "AnalysisId and message required",
       });
     }
-    let analysis;
+
+    let analysis=null;
     if(analysisId){
       analysis = await Analysis.findOne({
       _id: analysisId,
@@ -39,7 +40,7 @@ export const chatWithSeoAssistant = async (req, res) => {
         return res.status(500).json({
           success:false,
           message:result.error
-        }),
+        });
       }
       analysis=result.analysis;
     }

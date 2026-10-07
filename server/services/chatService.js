@@ -4,7 +4,7 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
 });
 
-export const askSeoAssistant = async (analysis,websiteUrl,message,previousMessages = [] ) => {
+export const askSeoAssistant = async (analysis,message,previousMessages = [] ) => {
         try {
 
 const history = previousMessages
@@ -18,7 +18,7 @@ You are IntelliRank AI, a professional SEO consultant.
 
 The authenticated user's website is:
 
-Website Url:${websiteUrl}
+Website Url:${analysis.url}
 
 You must use the provided Seo analysis as a primary source of truth.
 
