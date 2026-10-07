@@ -4,7 +4,7 @@ import { askSeoAssistant } from "../services/chatService.js";
 
 export const chatWithSeoAssistant = async (req, res) => {
   try {
-    const { analysisId, message } = req.body;
+    const { analysisId,websiteUrl, message } = req.body;
 
     if (!analysisId || !message) {
       return res.status(400).json({
@@ -25,6 +25,16 @@ export const chatWithSeoAssistant = async (req, res) => {
       });
     }
 
+    //use url stored in the analysis as the trusted url
+    const url=analysis.url || websiteUrl;
+
+    if(!url){
+      return res.status(400).json({
+        success:false,
+        message:"website url not avalable"
+      })
+    }
+    
     // Find existing chat
     let chat = await Chat.findOne({
       analysisId,
@@ -38,6 +48,8 @@ export const chatWithSeoAssistant = async (req, res) => {
         messages: [],
       });
     } 
+
+    //keep previos messages separately
       const previousMessages=[...chat.messages];
 
     
